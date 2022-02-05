@@ -87,7 +87,7 @@ class SQLiteDbProvider {
   }
   Future<List<Trxn>> getgainAcctsByTopic(int str,int t) async {
     final db = await database;
-    List<Map<String,dynamic>> results = await db.rawQuery("SELECT * FROM Topic WHERE is_gain="+t.toString()+" AND title= "+str.toString());
+    List<Map<String,dynamic>> results = await db.rawQuery("SELECT * FROM Trxn WHERE is_gain="+t.toString()+" AND title= "+str.toString());
     List<Trxn> trxns = [];
     results.forEach((result) {
       Trxn trxn = Trxn.fromMap(result);
@@ -100,10 +100,10 @@ class SQLiteDbProvider {
     List<Map<String,dynamic>> results = await db.rawQuery("SELECT tgain,tspend FROM Acct where acct='"+str+"'");
     return results.toList();
   }
-  Future<Object> getTopicById(int id) async {
+   getAcctById(int id) async {
     final db = await database;
-    var result = await db.query("Trxn", where: "id = ", whereArgs: [id]);
-    return result.isNotEmpty ? Trxn.fromMap(result.first) : Null;
+    var result = await db.query("Acct", where: "id = ", whereArgs: [id]);
+    return result.isNotEmpty ? Acct.fromMap(result.first) : Null;
   }
   insertAcct(Acct acct) async {
     final db = await database;
@@ -130,6 +130,13 @@ class SQLiteDbProvider {
     final db = await database;
     var result = await db.update(
         "Trxn", trxn.toMap(), where: "id = ?", whereArgs: [trxn.id]
+    );
+    return result;
+  }
+  updateAcct(Acct acct) async {
+    final db = await database;
+    var result = await db.update(
+        "Acct", acct.toMap(), where: "id = ?", whereArgs: [acct.id]
     );
     return result;
   }

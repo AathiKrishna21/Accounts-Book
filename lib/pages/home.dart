@@ -2,6 +2,8 @@ import 'package:accounts_book/database.dart';
 import 'package:accounts_book/models/acct_class.dart';
 import 'package:flutter/material.dart';
 
+import 'acctbook.dart';
+
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
@@ -10,10 +12,10 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late Future<List<Acct>> accts;
   final TextEditingController _acctcontroller = TextEditingController();
-  getaccts() async{
+  getaccts() {
     var t=SQLiteDbProvider.db.getAllAccts();
     accts= t;
   }
@@ -26,7 +28,15 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("My Accounts Book"),
+        backgroundColor: Colors.blueAccent,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.menu_book_outlined),
+            SizedBox(width: 10.0,),
+            Text("My Accounts Book"),
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -46,23 +56,21 @@ class _HomeState extends State<Home> {
                               child: Padding(
                                 padding: const EdgeInsets.all(20.0),
                                 child: ListTile(
+                                  onTap: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => AccountBook(acct: snapshot.data[index])));
+                                  },
                                   title: Text(snapshot.data[index].acct),
                                   trailing: ElevatedButton(
                                     onPressed: () {
-                                      // Validate returns true if the form is valid, or false otherwise.
-                                      if (_formKey.currentState!.validate()) {
                                         SQLiteDbProvider.db.deleteAcct(snapshot.data[index].id).then((value) {
                                           getaccts();
-                                          setState(() {
-                                            _acctcontroller.clear();
-                                          });
+                                          setState(() {});
                                         });
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           const SnackBar(content: Text('Account Deleted')),
                                         );
-                                      }
                                     },
-                                    child: Icon(Icons.delete_outline),
+                                    child: Icon(Icons.delete_outline,color: Colors.red,),
                                     style: ButtonStyle(
                                       shape: MaterialStateProperty.all(CircleBorder()),
                                       padding: MaterialStateProperty.all(EdgeInsets.all(15)),
@@ -71,8 +79,7 @@ class _HomeState extends State<Home> {
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
+                              );
                           }
 
                     );
