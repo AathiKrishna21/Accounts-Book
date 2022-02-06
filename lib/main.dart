@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       // home: const Home(),
       routes: {
         "/" : (context) => const Home(),
-        "/acct" : (context) => AccountBook(acct: Acct(0,"",0,0)),
+        "/acct" : (context) => AccountBook(acct: Acct(0,"")),
       },
     );
   }

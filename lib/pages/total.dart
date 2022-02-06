@@ -46,10 +46,10 @@ class _TotalState extends State<Total> {
           ),
           Container(
             width: double.maxFinite,
-            color: Colors.grey,
+            color: Colors.blueAccent,
             padding: EdgeInsets.all(15.0),
             child: Center(
-              child: Text("Total : "+(inflow-outflow).toString(),style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600),),
+              child: Text("Total : "+(inflow-outflow).toString(),style: const TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600,color: Colors.white),),
             ),
           )
         ],

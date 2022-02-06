@@ -56,23 +56,23 @@ class _AccountBookState extends State<AccountBook> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.monetization_on_outlined),
                 label: 'Income',
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: Colors.white,
             ),
             BottomNavigationBarItem(
                 icon: Icon(Icons.attach_money_outlined),
                 label: 'Expenditure',
-                backgroundColor: Colors.blueAccent,
+                backgroundColor: Colors.white,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.wallet_membership_outlined),
               label: 'Total',
-              backgroundColor: Colors.blueAccent,
+              backgroundColor: Colors.white,
             ),
           ],
           type: BottomNavigationBarType.shifting,
           currentIndex: _selectedIndex,
-          unselectedItemColor: Colors.grey,
-          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.grey[300],
+          selectedItemColor: Colors.blueAccent,
           iconSize: 30,
           onTap: _onItemTapped,
           elevation: 5

@@ -22,10 +22,10 @@ class SQLiteDbProvider {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, "abdatabase.db");
     return await openDatabase(
-        path, version: 2,
+        path, version: 1,
         onOpen: (db) {},
         onConfigure: _onConfigure,
-        onUpgrade: _onUpgrade,
+        // onUpgrade: _onUpgrade,
         onCreate: (Database db, int version) async {
           await db.execute("CREATE TABLE Trxn ("
               "id INTEGER PRIMARY KEY,"
@@ -35,13 +35,11 @@ class SQLiteDbProvider {
               "total REAL,"
               "title INTEGER,"
               "FOREIGN KEY (title) REFERENCES Acct(id) ON DELETE CASCADE)");
-          // await db.execute(
-          //     "CREATE TABLE Acct ("
-          //         "id INTEGER PRIMARY KEY,"
-          //         "acct TEXT,"
-          //         "tgain REAL,"
-          //         "tspend REAL)"
-          // );
+          await db.execute(
+              "CREATE TABLE Acct ("
+                  "id INTEGER PRIMARY KEY,"
+                  "acct TEXT)"
+          );
         }
     );
   }
@@ -49,18 +47,18 @@ class SQLiteDbProvider {
   static Future _onConfigure(Database db) async {
     await db.execute('PRAGMA foreign_keys = ON');
   }
-  _onUpgrade(Database db, int oldVersion, int newVersion) async{
-    if (oldVersion < newVersion) {
-      await db.execute("DROP TABLE IF EXISTS Acct");
-      await db.execute(
-          "CREATE TABLE Acct ("
-              "id INTEGER PRIMARY KEY,"
-              "acct TEXT,"
-              "tgain REAL,"
-              "tspend REAL)"
-      );
-    }
-  }
+  // _onUpgrade(Database db, int oldVersion, int newVersion) async{
+  //   if (oldVersion < newVersion) {
+  //     await db.execute("DROP TABLE IF EXISTS Acct");
+  //     await db.execute(
+  //         "CREATE TABLE Acct ("
+  //             "id INTEGER PRIMARY KEY,"
+  //             "acct TEXT,"
+  //             "tgain REAL,"
+  //             "tspend REAL)"
+  //     );
+  //   }
+  // }
   Future<List<Trxn>> getAllTopics() async {
     final db = await database;
     List<Map<String,dynamic>> results = await db.query(
@@ -110,9 +108,9 @@ class SQLiteDbProvider {
     var maxIdResult = await db.rawQuery("SELECT MAX(id)+1 as last_inserted_id FROM Acct");
     var id = maxIdResult.first["last_inserted_id"];
     var result = await db.rawInsert(
-        "INSERT Into Acct (id, acct, tgain, tspend)"
-            " VALUES (?, ?, ?, ?)",
-        [id, acct.acct, acct.tgain, acct.tspend]
+        "INSERT Into Acct (id, acct)"
+            " VALUES (?, ?)",
+        [id, acct.acct]
     );
     // return result;
   }

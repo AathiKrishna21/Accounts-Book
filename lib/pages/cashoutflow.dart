@@ -1,6 +1,7 @@
 import 'package:accounts_book/models/acct_class.dart';
 import 'package:accounts_book/models/trxn_class.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 
 import '../database.dart';
@@ -31,8 +32,18 @@ class _CashOutflowState extends State<CashOutflow> {
   gettotal() async{
     var t=(await SQLiteDbProvider.db.gettotal(acct.id, 0))[0]["total"];
     setState(() {
-      total=double.parse(t.toStringAsFixed(2));
+      total=t !=null ? double.parse(t.toStringAsFixed(2)) : 0;
     });
+  }
+  void showToast(String toastmsg) {
+    Fluttertoast.showToast(
+        msg: toastmsg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white
+    );
   }
   @override
   void initState() {
@@ -99,6 +110,7 @@ class _CashOutflowState extends State<CashOutflow> {
                                       setState(() {});
                                     }
                                     );
+                                    showToast("Transaction Added");
                                     Navigator.of(context).pop();
                                   }
                                 },
@@ -118,7 +130,7 @@ class _CashOutflowState extends State<CashOutflow> {
                 future: trxns,
                 builder: (context, AsyncSnapshot snapshot){
                   if(snapshot.hasError) print(snapshot.error);
-                  if(snapshot.hasData){
+                  if(snapshot.hasData && snapshot.data.length>0){
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
@@ -207,6 +219,7 @@ class _CashOutflowState extends State<CashOutflow> {
                                                               setState(() {});
                                                             }
                                                             );
+                                                            showToast("Transaction Updated");
                                                             Navigator.of(context).pop();
                                                           }
                                                         },
@@ -227,10 +240,40 @@ class _CashOutflowState extends State<CashOutflow> {
                                       ),
                                       ElevatedButton(
                                         onPressed: () {
-                                          SQLiteDbProvider.db.delete(snapshot.data[index].id).then((value) {
-                                            gettrxn();
-                                            gettotal();
-                                            setState(() {});
+                                          showDialog(context: context, builder: (context) {
+                                            return AlertDialog(
+                                              title: const Text("Confirm Delete"),
+                                              content: const Text("Do you want to delete this Account"),
+                                              actions: [
+                                                ElevatedButton(
+                                                  child: const Text('Yes'),
+                                                  onPressed: () {
+                                                    SQLiteDbProvider.db.delete(snapshot.data[index].id).then((value) {
+                                                      gettotal();
+                                                      gettrxn();
+                                                      setState(() {});
+                                                    });
+                                                    showToast("Transaction Deleted");
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  style: ButtonStyle(
+                                                    backgroundColor:  MaterialStateProperty.all(Colors.red[300]),
+                                                    overlayColor:  MaterialStateProperty.all(Colors.red[500]),
+
+                                                  ),
+                                                ),
+                                                ElevatedButton(
+                                                  child: const Text('NO'),
+                                                  onPressed: () {
+                                                    Navigator.of(context).pop();
+                                                  },
+                                                  style: ButtonStyle(
+                                                    backgroundColor:  MaterialStateProperty.all(Colors.lightGreen[300]),
+                                                    overlayColor:  MaterialStateProperty.all(Colors.lightGreen[500]),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
                                           });
                                         },
                                         child: Icon(Icons.delete_outline, color: Colors.red),
@@ -247,7 +290,12 @@ class _CashOutflowState extends State<CashOutflow> {
                     );
                   }
                   else{
-                    return const Text("Create a new Account");
+                    return Stack(
+                        alignment: Alignment.center,
+                        children: const [
+                          SizedBox(height: 350.0),
+                          Text("Add a new transaction",style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500)),]
+                    );
                   }
                 },
               ),
@@ -255,13 +303,13 @@ class _CashOutflowState extends State<CashOutflow> {
           ),
           Container(
             width: double.maxFinite,
-            color: Colors.grey,
+            color: Colors.blueAccent,
             padding: EdgeInsets.all(15.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text("Total : ",style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600),),
-                Text(double.parse(total.toStringAsFixed(2)).toString(),style: const TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600),)
+                const Text("Total : ",style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600,color: Colors.white),),
+                Text(double.parse(total.toStringAsFixed(2)).toString(),style: const TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600,color: Colors.white),)
               ],
             ),
           )
