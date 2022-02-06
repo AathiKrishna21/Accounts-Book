@@ -1,7 +1,6 @@
 import 'package:accounts_book/database.dart';
 import 'package:accounts_book/models/acct_class.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 
 class Total extends StatefulWidget {
   final Acct acct;
@@ -33,7 +32,7 @@ class _TotalState extends State<Total> {
       padding: const EdgeInsets.all(10.0),
       child: Column(
         children: [
-          Text("Summary",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 20.0),),
+          Text("Summary",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 22.0),),
           SizedBox(height: 200.0,),
           Expanded(
             child: Column(
@@ -49,7 +48,7 @@ class _TotalState extends State<Total> {
             color: Colors.blueAccent,
             padding: EdgeInsets.all(15.0),
             child: Center(
-              child: Text("Total : "+(inflow-outflow).toString(),style: const TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600,color: Colors.white),),
+              child: Text("Balance : "+(inflow-outflow).toString(),style: const TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600,color: Colors.white),),
             ),
           )
         ],

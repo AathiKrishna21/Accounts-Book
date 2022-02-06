@@ -1,3 +1,4 @@
+import 'package:accounts_book/helper/decimal_input.dart';
 import 'package:accounts_book/models/acct_class.dart';
 import 'package:accounts_book/models/trxn_class.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,9 @@ class _CashOutflowState extends State<CashOutflow> {
   double total=0.00;
   final TextEditingController _sourcecontroller = TextEditingController();
   final TextEditingController _amountcontroller = TextEditingController();
+  final TextEditingController _sourceupdatecontroller = TextEditingController();
+  final TextEditingController _amountupdatecontroller = TextEditingController();
+  final _amountValidator = RegExInputFormatter.withRegex('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$');
   final f = DateFormat('dd-MM-yy');
   gettrxn() {
     var t=SQLiteDbProvider.db.getgainAcctsByTopic(acct.id, 0);
@@ -61,7 +65,7 @@ class _CashOutflowState extends State<CashOutflow> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children:  [
               const Text("Cash Outflow",
-                style: TextStyle(fontWeight: FontWeight.w600,fontSize: 25.0,),
+                style: TextStyle(fontWeight: FontWeight.w600,fontSize: 22.0,),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -86,6 +90,11 @@ class _CashOutflowState extends State<CashOutflow> {
                                     ),
                                     TextFormField(
                                       controller: _amountcontroller,
+                                      inputFormatters: [_amountValidator],
+                                      keyboardType: const TextInputType.numberWithOptions(
+                                        decimal: true,
+                                        signed: false,
+                                      ),
                                       validator: (value) {
                                         return value!.isNotEmpty ? null : "Enter amount";
                                       },
@@ -163,11 +172,11 @@ class _CashOutflowState extends State<CashOutflow> {
                                     }),
                                 cells: [
                                   DataCell(Center(
-                                      child: Text(snapshot.data[index].date))),
+                                      child: Text(snapshot.data[index].date,style: const TextStyle(fontSize: 16.0),))),
                                   DataCell(Center(
-                                      child: Text(snapshot.data[index].reason))),
+                                      child: Text(snapshot.data[index].reason,style: const TextStyle(fontSize: 16.0),))),
                                   DataCell(Center(
-                                      child: Text(snapshot.data[index].total.toString()))),
+                                      child: Text(snapshot.data[index].total.toString(),style: const TextStyle(fontSize: 16.0),))),
                                   DataCell(Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
@@ -178,8 +187,8 @@ class _CashOutflowState extends State<CashOutflow> {
                                               builder: (context) {
                                                 bool isChecked = false;
                                                 return StatefulBuilder(builder: (context, setState) {
-                                                  _amountcontroller.text=snapshot.data[index].total.toString();
-                                                  _sourcecontroller.text=snapshot.data[index].reason;
+                                                  _amountupdatecontroller.text=snapshot.data[index].total.toString();
+                                                  _sourceupdatecontroller.text=snapshot.data[index].reason;
                                                   return AlertDialog(
                                                     content: Form(
                                                         key: _formKey,
@@ -187,14 +196,19 @@ class _CashOutflowState extends State<CashOutflow> {
                                                           mainAxisSize: MainAxisSize.min,
                                                           children: [
                                                             TextFormField(
-                                                              controller: _sourcecontroller,
+                                                              controller: _sourceupdatecontroller,
                                                               validator: (value) {
                                                                 return value!.isNotEmpty ? null : "Enter Recipient";
                                                               },
                                                               decoration: InputDecoration(hintText: "Recipient"),
                                                             ),
                                                             TextFormField(
-                                                              controller: _amountcontroller,
+                                                              controller: _amountupdatecontroller,
+                                                              inputFormatters: [_amountValidator],
+                                                              keyboardType: const TextInputType.numberWithOptions(
+                                                                decimal: true,
+                                                                signed: false,
+                                                              ),
                                                               validator: (value) {
                                                                 return value!.isNotEmpty ? null : "Enter amount";
                                                               },
@@ -210,12 +224,12 @@ class _CashOutflowState extends State<CashOutflow> {
                                                         child: Text('Done'),
                                                         onPressed: () {
                                                           if (_formKey.currentState!.validate()) {
-                                                            double temp=double.parse(_amountcontroller.text);
-                                                            SQLiteDbProvider.db.update(Trxn(snapshot.data[index].id,snapshot.data[index].date,_sourcecontroller.text,0,temp,snapshot.data[index].title)).then((value) {
+                                                            double temp=double.parse(_amountupdatecontroller.text);
+                                                            SQLiteDbProvider.db.update(Trxn(snapshot.data[index].id,snapshot.data[index].date,_sourceupdatecontroller.text,0,temp,snapshot.data[index].title)).then((value) {
+                                                              _sourceupdatecontroller.clear();
+                                                              _amountupdatecontroller.clear();
                                                               gettrxn();
                                                               gettotal();
-                                                              _sourcecontroller.clear();
-                                                              _amountcontroller.clear();
                                                               setState(() {});
                                                             }
                                                             );

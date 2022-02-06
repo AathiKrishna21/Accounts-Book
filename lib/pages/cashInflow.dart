@@ -1,3 +1,4 @@
+import 'package:accounts_book/helper/decimal_input.dart';
 import 'package:accounts_book/models/acct_class.dart';
 import 'package:accounts_book/models/trxn_class.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +22,10 @@ class _CashInflowState extends State<CashInflow> {
   late Future<List<Trxn>> trxns;
   double total=0.00;
   final TextEditingController _sourcecontroller = TextEditingController();
+  final TextEditingController _sourceupdatecontroller = TextEditingController();
+  final TextEditingController _amountupdatecontroller = TextEditingController();
   final TextEditingController _amountcontroller = TextEditingController();
+  final _amountValidator = RegExInputFormatter.withRegex('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$');
   final f = DateFormat('dd-MM-yy');
   gettrxn() {
     var t=SQLiteDbProvider.db.getgainAcctsByTopic(acct.id, 1);
@@ -61,7 +65,7 @@ class _CashInflowState extends State<CashInflow> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children:  [
                 const Text("Cash Inflow",
-                  style: TextStyle(fontWeight: FontWeight.w600,fontSize: 25.0,),
+                  style: TextStyle(fontWeight: FontWeight.w600,fontSize: 22.0,),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -87,6 +91,11 @@ class _CashInflowState extends State<CashInflow> {
                                       ),
                                       TextFormField(
                                         controller: _amountcontroller,
+                                        inputFormatters: [_amountValidator],
+                                        keyboardType: const TextInputType.numberWithOptions(
+                                          decimal: true,
+                                          signed: false,
+                                        ),
                                         validator: (value) {
                                           return value!.isNotEmpty ? null : "Enter amount";
                                         },
@@ -164,11 +173,11 @@ class _CashInflowState extends State<CashInflow> {
                                         }),
                                     cells: [
                                       DataCell(Center(
-                                          child: Text(snapshot.data[index].date))),
+                                          child: Text(snapshot.data[index].date,style: const TextStyle(fontSize: 16.0),))),
                                       DataCell(Center(
-                                          child: Text(snapshot.data[index].reason))),
+                                          child: Text(snapshot.data[index].reason,style: const TextStyle(fontSize: 16.0),))),
                                       DataCell(Center(
-                                          child: Text(snapshot.data[index].total.toString()))),
+                                          child: Text(snapshot.data[index].total.toString(),style: const TextStyle(fontSize: 16.0),))),
                                       DataCell(Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
@@ -179,8 +188,8 @@ class _CashInflowState extends State<CashInflow> {
                                                 builder: (context) {
                                                 bool isChecked = false;
                                                 return StatefulBuilder(builder: (context, setState) {
-                                                  _amountcontroller.text=snapshot.data[index].total.toString();
-                                                  _sourcecontroller.text=snapshot.data[index].reason;
+                                                  _amountupdatecontroller.text=snapshot.data[index].total.toString();
+                                                  _sourceupdatecontroller.text=snapshot.data[index].reason;
                                                   return AlertDialog(
                                                     content: Form(
                                                       key: _formKey,
@@ -188,36 +197,43 @@ class _CashInflowState extends State<CashInflow> {
                                                         mainAxisSize: MainAxisSize.min,
                                                         children: [
                                                           TextFormField(
-                                                            controller: _sourcecontroller,
+                                                            controller: _sourceupdatecontroller,
                                                             validator: (value) {
                                                               return value!.isNotEmpty ? null : "Enter Source";
                                                               },
                                                             decoration: InputDecoration(hintText: "Source"),
                                                           ),
                                                           TextFormField(
-                                                            controller: _amountcontroller,
+                                                            controller: _amountupdatecontroller,
+                                                            inputFormatters: [_amountValidator],
+                                                            keyboardType: const TextInputType.numberWithOptions(
+                                                              decimal: true,
+                                                              signed: false,
+                                                            ),
                                                             validator: (value) {
                                                               return value!.isNotEmpty ? null : "Enter amount";
                                                               },
-                                                            decoration: InputDecoration(hintText: "Amount"),
+                                                            decoration: const InputDecoration(hintText: "Amount"),
                                                             ),
 
                                                         ],
                                                       )
                                                     ),
-                                                    title: Text('Update Cash Inflow'),
+                                                    title: const Text('Update Cash Inflow'),
                                                     actions: <Widget>[
                                                     ElevatedButton(
-                                                        child: Text('Done'),
+                                                        child: const Text('Done'),
                                                         onPressed: () {
                                                           if (_formKey.currentState!.validate()) {
-                                                            double temp=double.parse(_amountcontroller.text);
-                                                            SQLiteDbProvider.db.update(Trxn(snapshot.data[index].id,snapshot.data[index].date,_sourcecontroller.text,1,temp,snapshot.data[index].title)).then((value) {
+                                                            double temp=double.parse(_amountupdatecontroller.text);
+                                                            SQLiteDbProvider.db.update(Trxn(snapshot.data[index].id,snapshot.data[index].date,_sourceupdatecontroller.text,1,temp,snapshot.data[index].title)).then((value) {
+
                                                               gettrxn();
                                                               gettotal();
-                                                              _sourcecontroller.clear();
-                                                              _amountcontroller.clear();
-                                                              setState(() {});
+                                                              setState(() {
+                                                                _sourceupdatecontroller.clear();
+                                                                _amountupdatecontroller.clear();
+                                                              });
                                                               showToast("Transaction Updated");
                                                             }
                                                             );
