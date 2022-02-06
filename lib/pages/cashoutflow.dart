@@ -10,26 +10,35 @@ class CashOutflow extends StatefulWidget {
   const CashOutflow({Key? key,required this.acct}) : super(key: key);
 
   @override
-  _CashOutflowState createState() => _CashOutflowState();
+  _CashOutflowState createState() => _CashOutflowState(acct);
 }
 
 class _CashOutflowState extends State<CashOutflow> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late Future<List<Trxn>> trxns;
+  final Acct acct;
+  _CashOutflowState(this.acct);
+  double total=0.00;
   final TextEditingController _sourcecontroller = TextEditingController();
   final TextEditingController _amountcontroller = TextEditingController();
   final f = DateFormat('dd-MM-yy');
   gettrxn() {
-    var t=SQLiteDbProvider.db.getgainAcctsByTopic(widget.acct.id, 0);
-    trxns=t;
+    var t=SQLiteDbProvider.db.getgainAcctsByTopic(acct.id, 0);
+    setState(() {
+      trxns=t;
+    });
   }
-  updatetotal(double t,Acct a){
-    SQLiteDbProvider.db.updateAcct(Acct(a.id,a.acct,a.tgain,t));
+  gettotal() async{
+    var t=(await SQLiteDbProvider.db.gettotal(acct.id, 0))[0]["total"];
+    setState(() {
+      total=double.parse(t.toStringAsFixed(2));
+    });
   }
   @override
   void initState() {
     super.initState();
     gettrxn();
+    gettotal();
   }
   @override
   Widget build(BuildContext context) {
@@ -82,10 +91,9 @@ class _CashOutflowState extends State<CashOutflow> {
                                 onPressed: () {
                                   if (_formKey.currentState!.validate()) {
                                     double temp=double.parse(_amountcontroller.text);
-                                    SQLiteDbProvider.db.insert(Trxn(0,f.format(DateTime.now()).split(" ")[0],_sourcecontroller.text,0,temp,widget.acct.id)).then((value) {
+                                    SQLiteDbProvider.db.insert(Trxn(0,f.format(DateTime.now()).split(" ")[0],_sourcecontroller.text,0,temp,acct.id)).then((value) {
                                       gettrxn();
-                                      double t=widget.acct.tspend+temp;
-                                      updatetotal(t, widget.acct);
+                                      gettotal();
                                       _sourcecontroller.clear();
                                       _amountcontroller.clear();
                                       setState(() {});
@@ -191,10 +199,9 @@ class _CashOutflowState extends State<CashOutflow> {
                                                         onPressed: () {
                                                           if (_formKey.currentState!.validate()) {
                                                             double temp=double.parse(_amountcontroller.text);
-                                                            double t=widget.acct.tspend+temp-snapshot.data[index].total;
                                                             SQLiteDbProvider.db.update(Trxn(snapshot.data[index].id,snapshot.data[index].date,_sourcecontroller.text,0,temp,snapshot.data[index].title)).then((value) {
                                                               gettrxn();
-                                                              updatetotal(t, widget.acct);
+                                                              gettotal();
                                                               _sourcecontroller.clear();
                                                               _amountcontroller.clear();
                                                               setState(() {});
@@ -222,8 +229,7 @@ class _CashOutflowState extends State<CashOutflow> {
                                         onPressed: () {
                                           SQLiteDbProvider.db.delete(snapshot.data[index].id).then((value) {
                                             gettrxn();
-                                            double t=widget.acct.tspend-snapshot.data[index].total;
-                                            updatetotal(t, widget.acct);
+                                            gettotal();
                                             setState(() {});
                                           });
                                         },
@@ -251,8 +257,12 @@ class _CashOutflowState extends State<CashOutflow> {
             width: double.maxFinite,
             color: Colors.grey,
             padding: EdgeInsets.all(15.0),
-            child: Center(
-              child: Text("Total : "+widget.acct.tspend.toString(),style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600),),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Total : ",style: TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600),),
+                Text(double.parse(total.toStringAsFixed(2)).toString(),style: const TextStyle(fontSize: 20.0,fontWeight: FontWeight.w600),)
+              ],
             ),
           )
         ],

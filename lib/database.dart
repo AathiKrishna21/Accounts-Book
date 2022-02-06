@@ -95,9 +95,9 @@ class SQLiteDbProvider {
     });
     return trxns;
   }
-  gettotal(String str) async {
+  gettotal(int title,int is_gain) async {
     final db = await database;
-    List<Map<String,dynamic>> results = await db.rawQuery("SELECT tgain,tspend FROM Acct where acct='"+str+"'");
+    List<Map<String,dynamic>> results = await db.rawQuery("SELECT SUM(total) as total FROM Trxn where title="+title.toString()+" AND is_gain="+is_gain.toString());
     return results.toList();
   }
    getAcctById(int id) async {
