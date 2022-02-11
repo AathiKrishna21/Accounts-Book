@@ -9,7 +9,8 @@ import '../database.dart';
 
 class CashOutflow extends StatefulWidget {
   final Acct acct;
-  const CashOutflow({Key? key,required this.acct}) : super(key: key);
+  final Function(String toastmsg) showToast;
+  const CashOutflow({Key? key,required this.acct,required this.showToast}) : super(key: key);
 
   @override
   _CashOutflowState createState() => _CashOutflowState(acct);
@@ -38,16 +39,6 @@ class _CashOutflowState extends State<CashOutflow> {
     setState(() {
       total=t !=null ? double.parse(t.toStringAsFixed(2)) : 0;
     });
-  }
-  void showToast(String toastmsg) {
-    Fluttertoast.showToast(
-        msg: toastmsg,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.black54,
-        textColor: Colors.white
-    );
   }
   @override
   void initState() {
@@ -119,7 +110,7 @@ class _CashOutflowState extends State<CashOutflow> {
                                       setState(() {});
                                     }
                                     );
-                                    showToast("Transaction Added");
+                                    widget.showToast("Transaction Added");
                                     Navigator.of(context).pop();
                                   }
                                 },
@@ -233,7 +224,7 @@ class _CashOutflowState extends State<CashOutflow> {
                                                               setState(() {});
                                                             }
                                                             );
-                                                            showToast("Transaction Updated");
+                                                            widget.showToast("Transaction Updated");
                                                             Navigator.of(context).pop();
                                                           }
                                                         },
@@ -267,7 +258,7 @@ class _CashOutflowState extends State<CashOutflow> {
                                                       gettrxn();
                                                       setState(() {});
                                                     });
-                                                    showToast("Transaction Deleted");
+                                                    widget.showToast("Transaction Deleted");
                                                     Navigator.of(context).pop();
                                                   },
                                                   style: ButtonStyle(

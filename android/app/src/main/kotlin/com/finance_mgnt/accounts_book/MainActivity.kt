@@ -1,4 +1,4 @@
-package com.example.accounts_book
+package com.finance_mgnt.accounts_book
 
 import io.flutter.embedding.android.FlutterActivity
 

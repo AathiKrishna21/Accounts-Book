@@ -1,8 +1,10 @@
 import 'package:accounts_book/models/acct_class.dart';
+import 'package:accounts_book/pages/addTrxn.dart';
 import 'package:accounts_book/pages/cashInflow.dart';
 import 'package:accounts_book/pages/cashoutflow.dart';
 import 'package:accounts_book/pages/total.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class AccountBook extends StatefulWidget {
   final Acct acct;
@@ -16,15 +18,28 @@ class _AccountBookState extends State<AccountBook> {
   int _selectedIndex = 0;
   final Acct acct;
   _AccountBookState(this.acct);
+  void showToast(String toastmsg) {
+    Fluttertoast.showToast(
+        msg: toastmsg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white
+    );
+  }
   // static List<Widget> _widgetOptions = <Widget>[
   //   Text('Profile Page', style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold)),
   // ];
   getwidget(int t){
     if(t==0){
-      return  CashInflow(acct: acct);
+      return  AddTrxn(acct: acct,showToast: showToast,);
     }
     if(t==1){
-      return CashOutflow(acct: acct);
+      return  CashInflow(acct: acct,showToast: showToast,);
+    }
+    if(t==2){
+      return CashOutflow(acct: acct,showToast: showToast,);
     }
     return Total(acct: acct);
   }
@@ -53,6 +68,11 @@ class _AccountBookState extends State<AccountBook> {
       ),
       bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add_to_photos_outlined),
+              label: 'Add Transaction',
+              backgroundColor: Colors.white,
+            ),
             BottomNavigationBarItem(
                 icon: Icon(Icons.monetization_on_outlined),
                 label: 'Income',

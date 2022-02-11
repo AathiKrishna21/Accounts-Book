@@ -123,7 +123,6 @@ class _HomeState extends State<Home> {
                                   ),
                                 );
                             }
-
                       );
                     }
                     else{
@@ -178,11 +177,9 @@ class _HomeState extends State<Home> {
                           }
                         );
                           showToast('Account Created');
-
                         }
                       },
                       child: Icon(Icons.add,color: Colors.grey[600],size: 35.0,),
-
                     ),
                   ],
                 ),

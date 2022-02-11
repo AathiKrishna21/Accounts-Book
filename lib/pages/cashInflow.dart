@@ -9,7 +9,8 @@ import '../database.dart';
 
 class CashInflow extends StatefulWidget {
   final Acct acct;
-  const CashInflow({Key? key,required this.acct}) : super(key: key);
+  final Function(String toastmsg) showToast;
+  const CashInflow({Key? key,required this.acct,required this.showToast}) : super(key: key);
 
   @override
   _CashInflowState createState() => _CashInflowState(acct);
@@ -32,16 +33,6 @@ class _CashInflowState extends State<CashInflow> {
     setState(() {
       trxns=t;
     });
-  }
-  void showToast(String toastmsg) {
-    Fluttertoast.showToast(
-        msg: toastmsg,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.black54,
-        textColor: Colors.white
-    );
   }
   gettotal() async{
     var t=(await SQLiteDbProvider.db.gettotal(acct.id, 1))[0]["total"];
@@ -102,7 +93,6 @@ class _CashInflowState extends State<CashInflow> {
                                         decoration:
                                         InputDecoration(hintText: "Amount"),
                                       ),
-
                                     ],
                                   )),
                               title: Text('Add Cash Inflow'),
@@ -118,7 +108,7 @@ class _CashInflowState extends State<CashInflow> {
                                         _sourcecontroller.clear();
                                         _amountcontroller.clear();
                                         setState(() {});
-                                        showToast("Transaction Added");
+                                        widget.showToast("Transaction Added");
                                       }
                                       );
                                       Navigator.of(context).pop();
@@ -234,7 +224,7 @@ class _CashInflowState extends State<CashInflow> {
                                                                 _sourceupdatecontroller.clear();
                                                                 _amountupdatecontroller.clear();
                                                               });
-                                                              showToast("Transaction Updated");
+                                                              widget.showToast("Transaction Updated");
                                                             }
                                                             );
                                                             Navigator.of(context).pop();
@@ -269,7 +259,7 @@ class _CashInflowState extends State<CashInflow> {
                                                           gettotal();
                                                           gettrxn();
                                                           setState(() {});
-                                                          showToast("Transaction Deleted");
+                                                          widget.showToast("Transaction Deleted");
                                                         });
                                                         Navigator.of(context).pop();
                                                       },

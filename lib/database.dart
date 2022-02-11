@@ -48,29 +48,7 @@ class SQLiteDbProvider {
     await db.execute('PRAGMA foreign_keys = ON');
   }
   // _onUpgrade(Database db, int oldVersion, int newVersion) async{
-  //   if (oldVersion < newVersion) {
-  //     await db.execute("DROP TABLE IF EXISTS Acct");
-  //     await db.execute(
-  //         "CREATE TABLE Acct ("
-  //             "id INTEGER PRIMARY KEY,"
-  //             "acct TEXT,"
-  //             "tgain REAL,"
-  //             "tspend REAL)"
-  //     );
-  //   }
   // }
-  Future<List<Trxn>> getAllTopics() async {
-    final db = await database;
-    List<Map<String,dynamic>> results = await db.query(
-        "Trxn", columns: Trxn.columns, orderBy: "id ASC"
-    );
-    List<Trxn> trxns = [];
-    results.forEach((result) {
-      Trxn trxn = Trxn.fromMap(result);
-      trxns.add(trxn);
-    });
-    return trxns;
-  }
   Future<List<Acct>> getAllAccts() async {
     final db = await database;
     List<Map<String,dynamic>> results = await db.query(
